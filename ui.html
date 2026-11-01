@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Site Builder</title>
+<style>
+:root{--ink:#16181b;--muted:#61666d;--line:#e2e4e7;--soft:#f4f5f6;--orange:#ff6a00;--ok:#18794e;--err:#b42318}
+*{box-sizing:border-box}
+body{margin:0;font:15px/1.5 Inter,system-ui,-apple-system,Segoe UI,sans-serif;color:var(--ink);background:var(--soft)}
+header{background:var(--ink);color:#fff;padding:14px 24px;display:flex;align-items:center;gap:14px}
+header h1{margin:0;font-size:18px;letter-spacing:.02em}
+header .ai{margin-left:auto;font-size:13px;padding:4px 10px;border-radius:999px;background:#2a2d31}
+.layout{display:grid;grid-template-columns:250px minmax(0,1fr) 340px;gap:20px;padding:20px;max-width:1500px;margin:0 auto;align-items:start}
+.box{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px}
+.side{position:sticky;top:20px}
+.side h2,.box h2{margin:0 0 12px;font-size:14px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+.clients{display:flex;flex-direction:column;gap:6px;max-height:60vh;overflow:auto}
+.clients button{all:unset;cursor:pointer;padding:10px 12px;border-radius:8px;border:1px solid var(--line)}
+.clients button:hover{border-color:var(--ink)}
+.clients small{display:block;color:var(--muted);font-size:12px}
+.new{width:100%;margin-bottom:12px}
+.box+.box{margin-top:16px}
+label{display:block;font-weight:600;font-size:13px;margin-bottom:12px}
+label small{font-weight:400;color:var(--muted)}
+input[type=text],input[type=email],input[type=tel],input[type=url],input[type=time],select,textarea{display:block;width:100%;margin-top:5px;padding:9px 11px;font:inherit;border:1.5px solid var(--line);border-radius:8px;background:#fff}
+textarea{min-height:110px;resize:vertical;font-family:ui-monospace,Consolas,monospace;font-size:13px}
+textarea.prose{font-family:inherit;font-size:14px;min-height:80px}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--orange)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.days{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 12px}
+.days label{display:flex;gap:5px;align-items:center;margin:0;padding:6px 10px;border:1px solid var(--line);border-radius:999px;font-weight:500}
+.colors{display:flex;gap:16px;flex-wrap:wrap}
+.colors label{display:flex;flex-direction:column;align-items:flex-start}
+input[type=color]{width:64px;height:42px;border:1px solid var(--line);border-radius:8px;padding:2px;margin-top:5px;background:#fff}
+.swatches{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 12px}
+.swatches button{width:30px;height:30px;border-radius:6px;border:1px solid var(--line);cursor:pointer}
+.hint{font-size:12px;color:var(--muted);margin:-6px 0 12px}
+.drop{display:flex;align-items:center;gap:14px;border:2px dashed var(--line);border-radius:10px;padding:12px;margin-bottom:12px}
+.drop img{max-height:60px;max-width:180px;background:repeating-conic-gradient(#eee 0 25%,#fff 0 50%) 0 0/14px 14px;border-radius:4px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:11px 18px;border-radius:999px;border:2px solid var(--ink);background:#fff;color:var(--ink);font:inherit;font-weight:700;cursor:pointer;text-decoration:none}
+.btn.primary{background:var(--orange);border-color:var(--orange);color:#111}
+.btn:disabled{opacity:.5;cursor:wait}
+.build{display:flex;flex-direction:column;gap:10px}
+.result a.btn{width:100%}
+.result{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.status{font-weight:600}
+.status.ok{color:var(--ok)}.status.err{color:var(--err)}
+pre{white-space:pre-wrap;font-size:12px;background:var(--soft);padding:10px;border-radius:8px;max-height:260px;overflow:auto;margin:10px 0 0}
+.check{display:flex;gap:8px;align-items:flex-start;font-weight:500}
+.tg-head{font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:8px 0 6px}
+.toggles{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:6px;margin-bottom:10px}
+.toggles label{display:flex;gap:8px;align-items:center;margin:0;padding:7px 10px;border:1px solid var(--line);border-radius:8px;font-weight:500}
+.toggles input{accent-color:var(--orange);width:16px;height:16px}
+.svc-photos{display:grid;gap:8px}
+.sp{display:grid;grid-template-columns:72px 1fr auto;gap:12px;align-items:center;padding:8px;border:1px solid var(--line);border-radius:10px}
+.sp .th{width:72px;height:48px;border-radius:6px;background:var(--soft) center/cover no-repeat;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--muted);text-align:center}
+.sp b{font-size:14px}.sp small{display:block;color:var(--muted);font-size:12px}
+.sp .tag{display:inline-block;font-size:11px;font-weight:700;padding:1px 7px;border-radius:999px;background:#fff4e5;color:#8a4b00;margin-left:6px}
+.sp .tag.real{background:#e8f6ee;color:var(--ok)}
+.sp-btns{display:flex;gap:6px}
+.sp-btns label,.sp-btns button{margin:0;font-size:12px;padding:6px 10px;border:1.5px solid var(--line);border-radius:999px;background:#fff;cursor:pointer;font-weight:600}
+.sp-btns input{display:none}
+.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
+.thumbs div{position:relative;aspect-ratio:3/2;border-radius:8px;background:var(--soft) center/cover no-repeat}
+.thumbs button{position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;border:0;background:rgba(0,0,0,.7);color:#fff;cursor:pointer;line-height:1}
+.notes{font-size:13px;background:#fff4e5;color:#6b3a00;padding:10px 12px;border-radius:8px}
+@media (max-width:1100px){.layout{grid-template-columns:1fr}.side{position:static}}
+</style>
+</head>
+<body>
+<header><h1>Local Business Site Builder</h1><span class="ai" id="aiBadge">checking AI…</span></header>
+<div class="layout">
+
+<aside class="side box">
+  <button class="btn new" id="newBtn" type="button">+ New business</button>
+  <h2>Saved businesses</h2>
+  <div class="clients" id="clients"><small>None yet</small></div>
+  <a class="btn" href="/api/export" style="width:100%;margin-top:12px;font-size:13px;padding:8px 12px">Download backup</a>
+</aside>
+
+<form id="f" autocomplete="off">
+<div class="box"><h2>Site style &amp; options</h2>
+  <p class="hint" style="margin:0 0 12px">Set the look first so every site is different. <b>Surprise me</b> mixes the style choices for you; colors and fonts are below in Branding.</p>
+  <button type="button" class="btn" id="surprise" style="margin-bottom:14px">🎲 Surprise me</button>
+  <div class="g3">
+    <label>Hero (top of home page)<select name="hero_style"><option value="photo">Big full-screen photo</option><option value="dark">Dark, bold</option><option value="light">Light, airy</option><option value="centered">Centered</option><option value="split">Photo beside headline</option></select></label>
+    <label>Header bar<select name="header_style"><option value="light">White</option><option value="dark">Dark</option><option value="brand">Brand color</option></select></label>
+    <label>Footer<select name="footer_style"><option value="dark">Dark</option><option value="brand">Brand color</option><option value="light">Light</option></select></label>
+    <label>Corners<select name="corners"><option value="rounded">Rounded</option><option value="sharp">Sharp</option><option value="soft">Extra round</option></select></label>
+    <label>Buttons<select name="buttons"><option value="pill">Pill</option><option value="rounded">Rounded</option><option value="square">Square</option></select></label>
+    <label>Cards<select name="cards"><option value="border">Outlined</option><option value="shadow">Shadow</option><option value="flat">Flat</option></select></label>
+    <label>Section backgrounds<select name="section_tint"><option value="gray">Light gray</option><option value="brand">Brand tint</option><option value="none">White with lines</option></select></label>
+    <label>Spacing<select name="density"><option value="normal">Normal</option><option value="compact">Compact</option><option value="airy">Airy</option></select></label>
+    <label>Service list<select name="service_layout"><option value="photo">Cards with photos</option><option value="plain">Cards, no photos</option><option value="list">Wide rows</option></select></label>
+    <label>Heading letters<select name="head_case"><option value="auto">Font default</option><option value="normal">Normal</option><option value="upper">ALL CAPS</option></select></label>
+    <label>Page background<select name="page_bg"><option value="cream">Soft off-white</option><option value="white">White</option></select></label>
+    <label>Section titles<select name="section_heads"><option value="center">Centered</option><option value="left">Left</option></select></label>
+    <label>Body font<select name="body_font"><option>DM Sans</option><option>Inter</option><option>Lato</option><option>Nunito Sans</option><option>Source Sans 3</option><option>Work Sans</option></select></label>
+  </div>
+  <label>Announcement bar <small>(optional; thin strip at the very top, e.g. "Now booking spring cleanings")</small><input type="text" name="announcement"></label>
+  <div class="tg-head">Pages</div>
+  <div class="toggles">
+    <label><input type="checkbox" name="show_town_pages" checked>A page for each town</label>
+    <label><input type="checkbox" name="show_about_page" checked>About page</label>
+    <label><input type="checkbox" name="show_faq_page" checked>FAQ page</label>
+    <label><input type="checkbox" name="show_pricing_page" checked>Pricing page (if prices entered)</label>
+  </div>
+  <div class="tg-head">Sections</div>
+  <div class="toggles">
+    <label><input type="checkbox" name="show_trust" checked>Trust strip under the hero</label>
+    <label><input type="checkbox" name="show_hours_hero" checked>Hours in the hero</label>
+    <label><input type="checkbox" name="show_facts" checked>Quick-facts box</label>
+    <label><input type="checkbox" name="show_testimonials" checked>Testimonials (if entered)</label>
+    <label><input type="checkbox" name="show_gallery" checked>Photo gallery (if uploaded)</label>
+    <label><input type="checkbox" name="show_cta_bands" checked>Call-to-action bands</label>
+    <label><input type="checkbox" name="show_toc" checked>"On this page" links</label>
+    <label><input type="checkbox" name="show_related" checked>Related services</label>
+    <label><input type="checkbox" name="show_nearby" checked>Nearby towns</label>
+    <label><input type="checkbox" name="show_breadcrumbs" checked>Breadcrumbs</label>
+    <label><input type="checkbox" name="show_updated" checked>"Last updated" dates</label>
+    <label><input type="checkbox" name="animations" checked>Scroll animations</label>
+  </div>
+  <div class="tg-head">Contact</div>
+  <div class="toggles">
+    <label><input type="checkbox" name="show_header_phone" checked>Phone button in header</label>
+    <label><input type="checkbox" name="show_text_buttons" checked>"Text us" buttons</label>
+    <label><input type="checkbox" name="show_mobile_bar" checked>Call bar on phones</label>
+    <label><input type="checkbox" name="show_social" checked>Social links in footer</label>
+    <label><input type="checkbox" name="photo_upload">Photo upload in quote form</label>
+    <label><input type="checkbox" name="sms_consent" checked>Text-message consent box</label>
+  </div>
+</div>
+
+<div class="box"><h2>1. The business</h2>
+  <div class="g2">
+    <label>Business name *<input type="text" name="name" required placeholder="Smith Lawn Care"></label>
+    <label>Industry (what they are) *<input type="text" name="industry" required placeholder="Lawn Care"></label>
+  </div>
+  <div class="g2">
+    <label>Trade in a sentence <small>(lowercase, used in copy)</small><input type="text" name="trade" placeholder="lawn care and landscaping"></label>
+    <label>Google business type
+      <select name="schema_type">
+        <option value="LocalBusiness">Other / general local business</option>
+        <option value="HomeAndConstructionBusiness">Home services (general)</option>
+        <option value="GeneralContractor">General contractor</option>
+        <option value="Plumber">Plumber</option><option value="Electrician">Electrician</option>
+        <option value="HVACBusiness">HVAC</option><option value="RoofingContractor">Roofing</option>
+        <option value="HousePainter">Painter</option><option value="Locksmith">Locksmith</option>
+        <option value="MovingCompany">Moving company</option>
+        <option value="ProfessionalService">Cleaning / lawn / pressure washing</option>
+        <option value="AutoRepair">Auto repair</option><option value="AutoBodyShop">Auto body</option>
+        <option value="HairSalon">Hair salon / barber</option><option value="BeautySalon">Beauty salon</option>
+        <option value="NailSalon">Nail salon</option><option value="DaySpa">Spa</option>
+        <option value="Restaurant">Restaurant</option><option value="CafeOrCoffeeShop">Cafe</option><option value="Bakery">Bakery</option>
+        <option value="Dentist">Dentist</option><option value="AccountingService">Accountant / tax</option>
+        <option value="LegalService">Legal</option><option value="RealEstateAgent">Real estate</option>
+        <option value="ChildCare">Child care</option>
+      </select></label>
+  </div>
+  <label>What they do <small>(1–2 sentences, shows in the hero)</small><textarea class="prose" name="description" placeholder="Weekly mowing, mulching and seasonal cleanups for homes in Bowie and Crofton."></textarea></label>
+  <label>Tagline / headline <small>(optional; blank = auto)</small><input type="text" name="tagline" placeholder="A Yard You're Proud Of"></label>
+  <label>About the business <small>(optional, real story only)</small><textarea class="prose" name="about"></textarea></label>
+  <div class="g2">
+    <label>Year started <small>(optional)</small><input type="text" name="founded" placeholder="2019"></label>
+    <label>Estimate wording<input type="text" name="estimate_label" placeholder="Free estimates"></label>
+  </div>
+</div>
+
+<div class="box"><h2>2. Services</h2>
+  <label>One per line: <code>Service name | short description</code><textarea name="services_text" required placeholder="Lawn Mowing | Weekly and biweekly mowing, edging and blowing
+Mulching | Fresh mulch delivered and spread
+Leaf Removal | Fall cleanups and haul-away"></textarea></label>
+  <label>Prices <small>(optional) one per line: <code>Item | price</code></small><textarea name="pricing_text" placeholder="Lawn Mowing | $45
+Mulching | $85 per yard"></textarea></label>
+</div>
+
+<div class="box"><h2>3. Location &amp; service area</h2>
+  <div class="g3">
+    <label>Home city *<input type="text" name="city" required placeholder="Bowie"></label>
+    <label>State *<input type="text" name="state" required maxlength="2" placeholder="MD"></label>
+    <label>ZIP<input type="text" name="zip"></label>
+  </div>
+  <label>Street address <small>(only if customers visit; leave blank for service-area businesses)</small><input type="text" name="street"></label>
+  <label>Service region summary<input type="text" name="region" placeholder="Prince George's and Anne Arundel counties"></label>
+  <label>Towns served <small>(one per line; each gets its own ranking page)</small><textarea name="areas_text" placeholder="Bowie
+Crofton
+Upper Marlboro
+Mitchellville"></textarea></label>
+</div>
+
+<div class="box"><h2>4. Contact &amp; hours</h2>
+  <div class="g2">
+    <label>Phone<input type="tel" name="phone" placeholder="(301) 555-0123"></label>
+    <label>Email<input type="email" name="email"></label>
+  </div>
+  <label>Domain <small>(blank = name.pages.dev)</small><input type="text" name="domain" placeholder="smithlawncare.com"></label>
+  <div>Open days</div>
+  <div class="days" id="days"></div>
+  <div class="g3">
+    <label>Opens<input type="time" name="opens" value="08:00"></label>
+    <label>Closes<input type="time" name="closes" value="17:00"></label>
+    <label>Hours note<input type="text" name="hours_note" placeholder="emergency calls 24/7"></label>
+  </div>
+</div>
+
+<div class="box"><h2>5. Branding</h2>
+  <div class="drop"><img id="logoPrev" alt="" hidden><div><label style="margin:0">Logo <small>(PNG with transparent background works best)</small><input type="file" id="logo" accept="image/*"></label>
+  <button type="button" class="btn" id="logoRm" hidden style="padding:4px 10px;margin-top:6px">Remove</button></div></div>
+  <div class="hint" id="swHint" hidden>Colors found in the logo. Click one, then click a color box below to set it:</div>
+  <div class="swatches" id="swatches"></div>
+  <div class="colors">
+    <label>Main brand color<input type="color" name="primary" value="#1f6feb"></label>
+    <label>Button color<input type="color" name="accent" value="#ff6a00"></label>
+    <label>Dark color <small>(header/footer)</small><input type="color" name="dark" value="#14171b"></label>
+  </div>
+  <label style="margin-top:12px">Heading font
+    <select name="font_head"><option>Montserrat</option><option>Oswald</option><option>Anton</option><option>Bebas Neue</option>
+    <option>Poppins</option><option>Archivo</option><option>Playfair Display</option><option>DM Serif Display</option></select></label>
+  <div class="drop"><img id="heroPrev" alt="" hidden><div><label style="margin:0">Hero photo <small>(optional; real job photo)</small><input type="file" id="hero" accept="image/*"></label>
+  <button type="button" class="btn" id="heroRm" hidden style="padding:4px 10px;margin-top:6px">Remove</button></div></div>
+  <label>Trust points <small>(up to 4, only true ones)</small><textarea name="trust_text" placeholder="Licensed & insured
+Free estimates
+Family owned"></textarea></label>
+</div>
+
+<div class="box"><h2>6. Photos</h2>
+  <p class="hint" style="margin:0 0 12px">Real job photos from the owner work best. Any service left empty gets a matching stock photo automatically<span id="stockOff" hidden> (stock photos are off until you add a Pixabay key, so it gets a brand-color panel)</span>. Any size is fine, 4K included; they're shrunk for speed.</p>
+  <div class="svc-photos" id="svcPhotos"><small class="hint">Add services above first.</small></div>
+  <label style="margin-top:14px">Past job gallery <small>(up to 12; shows on the home page and town pages)</small>
+    <input type="file" id="galleryIn" accept="image/*" multiple></label>
+  <div class="thumbs" id="gallery"></div>
+</div>
+
+<div class="box"><h2>7. Lead form</h2>
+  <label>How should customers reach them?
+    <select name="form_type">
+      <option value="quote">Quote request (contractors, cleaning, lawn, junk removal)</option>
+      <option value="appointment">Book appointment (salons, barbers, detailing, grooming)</option>
+      <option value="contact">Contact / consultation (accountants, lawyers, real estate)</option>
+      <option value="call">Call-only, no form (big Call and Text buttons)</option>
+    </select></label>
+</div>
+
+<div class="box"><h2>8. Extra sections <small style="text-transform:none;letter-spacing:0">(real info only; blank = smart default or hidden)</small></h2>
+  <div class="g2">
+    <label>Stats bar <small>one per line: <code>15+ | Years in business</code> (blank = counts of services, towns, days)</small><textarea name="stats_text" placeholder="15+ | Years in business&#10;1,200+ | Jobs completed"></textarea></label>
+    <label>Badges <small>(real ones: BBB, licensed, chamber...; blank = trust points)</small><textarea name="badges_text" placeholder="Licensed &amp; insured&#10;BBB Accredited"></textarea></label>
+  </div>
+  <div class="g2">
+    <label>About checklist <small>(blank = trust points)</small><textarea name="about_points_text" placeholder="Owner on every job&#10;Eco-friendly products"></textarea></label>
+    <label>How it works steps <small><code>Title | short text</code>, up to 4 (blank = standard steps)</small><textarea name="process_text"></textarea></label>
+  </div>
+  <div class="g3">
+    <div class="drop"><img id="aboutPrev" alt="" hidden><div><label style="margin:0">About photo <small>(owner, team or truck)</small><input type="file" id="about" accept="image/*"></label></div></div>
+    <div class="drop"><img id="beforePrev" alt="" hidden><div><label style="margin:0">Before photo<input type="file" id="before" accept="image/*"></label></div></div>
+    <div class="drop"><img id="afterPrev" alt="" hidden><div><label style="margin:0">After photo<input type="file" id="after" accept="image/*"></label></div></div>
+  </div>
+  <label>Before/after caption <small>(optional)</small><input type="text" name="ba_caption" placeholder="Driveway in Bowie, cleaned in one afternoon"></label>
+</div>
+
+<div class="box"><h2>9. Extras</h2>
+  <label>Testimonials <small>(real ones only, with permission) one per line: <code>Name | What they said</code></small><textarea name="testimonials_text" placeholder="Joy A. | They leave my home feeling and smelling like paradise."></textarea></label>
+  <label>FAQs <small>(optional; blank = auto) one per line: <code>Question | Answer</code></small><textarea name="faqs_text"></textarea></label>
+  <div class="g2">
+    <label>Google Business Profile link<input type="url" name="google"></label>
+    <label>Facebook<input type="url" name="facebook"></label>
+    <label>Instagram<input type="url" name="instagram"></label>
+    <label>Yelp<input type="url" name="yelp"></label>
+  </div>
+  <div class="g2">
+    <label>GA4 ID <small>(G-XXXX)</small><input type="text" name="ga_id"></label>
+    <label>Nextdoor<input type="url" name="nextdoor"></label>
+  </div>
+  <div class="g2">
+    <label>Form endpoint <small>(blank = form opens their text app; for photo uploads use FormSubmit)</small><input type="url" name="form_endpoint" placeholder="https://formsubmit.co/owner@theirbusiness.com"></label>
+    <label>Form access key <small>(Web3Forms key)</small><input type="text" name="form_key"></label>
+  </div>
+</div>
+</form>
+
+<aside class="side box build">
+  <h2>Build</h2>
+  <label class="check"><input type="checkbox" id="useAi"><span>Write unique copy with Claude <small>(better rankings; about $0.50–$1.50 the first time, then only new pages cost)</small></span></label>
+  <label class="check"><input type="checkbox" id="rewrite"><span>Rewrite all copy <small>(charges again; use after changing name, phone or prices)</small></span></label>
+  <button class="btn primary" id="buildBtn" type="button">Build Website</button>
+  <p class="status" id="status"></p>
+  <div class="notes" id="notes" hidden></div>
+  <div class="result" id="result" hidden>
+    <a class="btn" id="pvBtn" target="_blank">Preview site</a>
+    <a class="btn" id="dlBtn">Download zip</a>
+    <button class="btn" id="folderBtn" type="button">Open folder</button>
+  </div>
+  <pre id="log" hidden></pre>
+</aside>
+</div>
+
+<script>
+const f = document.getElementById('f'), $ = id => document.getElementById(id);
+const DAYS = [['Mo','Mon'],['Tu','Tue'],['We','Wed'],['Th','Thu'],['Fr','Fri'],['Sa','Sat'],['Su','Sun']];
+$('days').innerHTML = DAYS.map(([v,l]) => `<label><input type="checkbox" name="days" value="${v}" ${'MoTuWeThFr'.includes(v)?'checked':''}>${l}</label>`).join('');
+let logoData = null, heroData = null, current = null, pickColor = null;
+let svc = {}, stockList = [], gallery = [], galAdd = [], galRemove = [], stockOn = false;
+const extraImgs = {about: null, before: null, after: null};
+['about', 'before', 'after'].forEach(k => $(k).addEventListener('change', async () => {
+  const file = $(k).files[0]; if (!file) return;
+  try { extraImgs[k] = await shrink(file, 2400); $(k + 'Prev').src = extraImgs[k]; $(k + 'Prev').hidden = false; } catch (err) { alert(err.message); }
+}));
+
+function readFile(input, cb) {
+  const file = input.files[0]; if (!file) return;
+  const r = new FileReader(); r.onload = () => cb(r.result); r.readAsDataURL(file);
+}
+// Shrink big photos (4K phone shots) before upload; the generator makes the final web sizes.
+function shrink(file, max = 2400) {
+  return new Promise((ok, bad) => {
+    const url = URL.createObjectURL(file), img = new Image();
+    img.onload = () => {
+      const k = Math.min(1, max / Math.max(img.width, img.height)), c = document.createElement('canvas');
+      c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url);
+      ok(c.toDataURL('image/jpeg', 0.9));
+    };
+    img.onerror = () => bad(new Error(file.name + " isn't an image this browser can read (try JPG or PNG)"));
+    img.src = url;
+  });
+}
+const slugify = s => s.toLowerCase().replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+function services() {
+  return f.services_text.value.split('\n').map(l => l.replace(/^[\s\-•]+/, '').split('|')[0].trim()).filter(Boolean)
+    .map(name => ({name, slug: slugify(name)}));
+}
+function renderSvcPhotos() {
+  const list = services();
+  if (!list.length) { $('svcPhotos').innerHTML = '<small class="hint">Add services above first.</small>'; return; }
+  $('svcPhotos').innerHTML = list.map(({name, slug}) => {
+    const s = svc[slug] || {}, src = s.remove ? '' : (s.data || s.url || '');
+    const tag = src ? '<span class="tag real">their photo</span>'
+      : stockList.includes(name) ? '<span class="tag">stock photo</span>'
+      : `<span class="tag">${stockOn ? 'stock fills in' : 'brand panel'}</span>`;
+    return `<div class="sp"><div class="th" style="${src ? `background-image:url('${src}')` : ''}">${src ? '' : 'no photo'}</div>
+      <div><b>${name.replace(/</g, '&lt;')}</b>${tag}</div>
+      <div class="sp-btns"><label>${src ? 'Replace' : 'Add photo'}<input type="file" accept="image/*" data-slug="${slug}"></label>
+      ${src ? `<button type="button" data-rm="${slug}">Remove</button>` : ''}</div></div>`;
+  }).join('');
+}
+$('svcPhotos').addEventListener('change', async e => {
+  const slug = e.target.dataset.slug, file = e.target.files[0]; if (!slug || !file) return;
+  try { svc[slug] = {...svc[slug], data: await shrink(file), remove: false}; } catch (err) { alert(err.message); }
+  renderSvcPhotos();
+});
+$('svcPhotos').addEventListener('click', e => {
+  const slug = e.target.dataset.rm; if (!slug) return;
+  svc[slug] = {remove: true}; renderSvcPhotos();
+});
+f.services_text.addEventListener('input', renderSvcPhotos);
+
+function renderGallery() {
+  const items = gallery.filter(g => !galRemove.includes(g.file)).map(g => ({src: g.url, key: 'f:' + g.file}))
+    .concat(galAdd.map((d, i) => ({src: d, key: 'n:' + i})));
+  $('gallery').innerHTML = items.map(x => `<div style="background-image:url('${x.src}')"><button type="button" data-k="${x.key}" aria-label="Remove">×</button></div>`).join('');
+  $('galleryIn').disabled = items.length >= 12;
+}
+$('galleryIn').addEventListener('change', async () => {
+  const room = 12 - (gallery.length - galRemove.length) - galAdd.length;
+  for (const file of [...$('galleryIn').files].slice(0, room)) {
+    try { galAdd.push(await shrink(file)); } catch (err) { alert(err.message); }
+  }
+  $('galleryIn').value = ''; renderGallery();
+});
+$('gallery').addEventListener('click', e => {
+  const k = e.target.dataset.k; if (!k) return;
+  if (k.startsWith('f:')) galRemove.push(k.slice(2)); else galAdd.splice(+k.slice(2), 1);
+  renderGallery();
+});
+function showImg(img, rm, url) { img.src = url || ''; img.hidden = !url; rm.hidden = !url; }
+
+// Pull the main colors out of the logo so brand colors match it.
+function logoColors(url) {
+  const img = new Image();
+  img.onload = () => {
+    const c = document.createElement('canvas'), s = 80; c.width = c.height = s;
+    const x = c.getContext('2d'); x.drawImage(img, 0, 0, s, s);
+    const px = x.getImageData(0, 0, s, s).data, buckets = {};
+    for (let i = 0; i < px.length; i += 4) {
+      if (px[i+3] < 200) continue;
+      const r = px[i], g = px[i+1], b = px[i+2];
+      if (Math.min(r,g,b) > 225) continue;                 // skip white background
+      const k = [r,g,b].map(v => Math.round(v/32)*32).join(',');
+      const o = buckets[k] = buckets[k] || {n:0,r:0,g:0,b:0}; o.n++; o.r+=r; o.g+=g; o.b+=b;
+    }
+    const top = Object.values(buckets).sort((a,b) => b.n-a.n).slice(0,8)
+      .map(o => '#' + [o.r,o.g,o.b].map(v => Math.round(v/o.n).toString(16).padStart(2,'0')).join(''));
+    $('swatches').innerHTML = top.map(h => `<button type="button" style="background:${h}" data-c="${h}" title="${h}"></button>`).join('');
+    $('swHint').hidden = !top.length;
+  };
+  img.src = url;
+}
+$('swatches').addEventListener('click', e => { const c = e.target.dataset.c; if (!c) return;
+  pickColor = c; [...$('swatches').children].forEach(b => b.style.outline = b.dataset.c === c ? '3px solid #111' : ''); });
+f.querySelectorAll('input[type=color]').forEach(inp => inp.addEventListener('click', e => {
+  if (pickColor) { e.preventDefault(); inp.value = pickColor; pickColor = null;
+    [...$('swatches').children].forEach(b => b.style.outline = ''); } }));
+
+$('logo').addEventListener('change', () => readFile($('logo'), d => { logoData = d; showImg($('logoPrev'), $('logoRm'), d); logoColors(d); }));
+$('hero').addEventListener('change', async () => {
+  const file = $('hero').files[0]; if (!file) return;
+  try { heroData = await shrink(file, 2600); showImg($('heroPrev'), $('heroRm'), heroData); } catch (err) { alert(err.message); }
+});
+$('logoRm').onclick = () => { logoData = 'remove'; $('logo').value = ''; showImg($('logoPrev'), $('logoRm'), ''); $('swatches').innerHTML=''; };
+$('heroRm').onclick = () => { heroData = 'remove'; $('hero').value = ''; showImg($('heroPrev'), $('heroRm'), ''); };
+
+function formData() {
+  const o = {days: []};
+  for (const el of f.elements) {
+    if (!el.name || el.type === 'file') continue;
+    if (el.name === 'days') { if (el.checked) o.days.push(el.value); continue; }
+    if (el.type === 'checkbox') { o[el.name] = el.checked; continue; }
+    o[el.name] = el.value.trim();
+  }
+  return o;
+}
+// Random look for a new client. Stays readable: dark header never pairs with a dark hero + dark footer all at once.
+const STYLE_FIELDS = ['page_bg', 'section_heads', 'hero_style', 'header_style', 'footer_style', 'corners', 'buttons', 'cards', 'section_tint',
+  'density', 'service_layout', 'head_case', 'body_font', 'font_head'];
+$('surprise').onclick = () => {
+  const pick = sel => { const o = [...sel.options]; sel.value = o[Math.floor(Math.random() * o.length)].value; };
+  STYLE_FIELDS.forEach(n => pick(f[n]));
+  if (f.hero_style.value === 'dark' && f.header_style.value === 'dark' && f.footer_style.value === 'dark') f.header_style.value = 'light';
+  f.animations.checked = Math.random() < 0.5;
+  $('surprise').textContent = '🎲 Surprise me again';
+};
+function fill(d) {
+  f.reset(); logoData = heroData = null; $('swatches').innerHTML = ''; $('swHint').hidden = true;
+  for (const el of f.elements) {
+    if (!el.name || el.type === 'file') continue;
+    if (el.name === 'days') el.checked = (d.days || []).includes(el.value);
+    else if (el.type === 'checkbox') el.checked = d[el.name] === undefined ? el.defaultChecked : d[el.name] === true || d[el.name] === 'true';
+    else if (d[el.name] !== undefined) el.value = d[el.name];
+  }
+  showImg($('logoPrev'), $('logoRm'), d._logo_url ? d._logo_url + '?t=' + Date.now() : '');
+  showImg($('heroPrev'), $('heroRm'), d._hero_url ? d._hero_url + '?t=' + Date.now() : '');
+  if (d._logo_url) logoColors(d._logo_url);
+  for (const k of ['about', 'before', 'after']) { extraImgs[k] = null; const u = d['_' + k + '_url']; $(k + 'Prev').src = u ? u + '?t=' + Date.now() : ''; $(k + 'Prev').hidden = !u; }
+  svc = {}; for (const [slug, url] of Object.entries(d._svc_photos || {})) svc[slug] = {url: url + '?t=' + Date.now()};
+  stockList = d._stock || []; gallery = d._gallery || []; galAdd = []; galRemove = [];
+  $('rewrite').checked = false; $('notes').hidden = true;
+  renderSvcPhotos(); renderGallery();
+  showResult(d._built ? d.slug : null);
+}
+async function openClient(slug) { fill(await (await fetch('/api/client?slug=' + slug)).json()); }
+function showResult(slug) {
+  current = slug; $('result').hidden = !slug;
+  if (slug) { $('pvBtn').href = '/preview/' + slug + '/'; $('dlBtn').href = '/download/' + slug; }
+}
+
+async function loadClients() {
+  const r = await (await fetch('/api/clients')).json();
+  $('aiBadge').textContent = r.ai ? 'AI copy: ready' : 'AI copy: off (template copy)';
+  $('aiBadge').textContent += r.stock ? ' · Stock photos: on' : ' · Stock photos: off';
+  $('useAi').disabled = !r.ai; $('useAi').checked = r.ai; $('rewrite').disabled = !r.ai;
+  stockOn = r.stock; $('stockOff').hidden = r.stock; renderSvcPhotos();
+  $('folderBtn').hidden = r.server;  // no "Open folder" on the hosted version
+  $('clients').innerHTML = r.clients.length ? r.clients.map(c =>
+    `<button type="button" data-slug="${c.slug}">${c.name.replace(/</g,'&lt;')}<small>${c.updated}</small></button>`).join('') : '<small>None yet</small>';
+}
+$('clients').addEventListener('click', async e => {
+  const b = e.target.closest('button'); if (!b) return;
+  await openClient(b.dataset.slug);
+  $('status').textContent = ''; $('log').hidden = true; window.scrollTo(0, 0);
+});
+$('newBtn').onclick = () => { fill({days:['Mo','Tu','We','Th','Fr']}); $('status').textContent=''; };
+
+$('buildBtn').onclick = async () => {
+  if (!f.reportValidity()) return;
+  const btn = $('buildBtn'), st = $('status');
+  btn.disabled = true; st.className = 'status'; st.textContent = $('useAi').checked ? 'Writing copy and building… (1–3 min)' : 'Building…';
+  try {
+    const svcPhotos = {};
+    for (const [slug, s] of Object.entries(svc)) { if (s.remove) svcPhotos[slug] = 'remove'; else if (s.data) svcPhotos[slug] = s.data; }
+    const r = await (await fetch('/api/build', {method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({data: formData(), logo: logoData, hero: heroData, svc_photos: svcPhotos,
+        gallery_add: galAdd, gallery_remove: galRemove, ...extraImgs, use_ai: $('useAi').checked, rewrite_copy: $('rewrite').checked})})).json();
+    $('log').textContent = (r.log || []).join('\n'); $('log').hidden = false;
+    if (r.ok) {
+      st.className = 'status ok'; st.textContent = `Built ${r.pages} pages.`;
+      await openClient(r.slug); loadClients();
+      const notes = [];
+      if (r.stock.length) notes.push('Stock photo used for: ' + r.stock.join(', ') + '. Swap in real photos when you can.');
+      if (r.no_photo.length) notes.push('No photo for: ' + r.no_photo.join(', ') + ' (brand-color panel).');
+      $('notes').innerHTML = notes.map(n => n.replace(/</g, '&lt;')).join('<br>'); $('notes').hidden = !notes.length;
+      st.className = 'status ok'; st.textContent = `Built ${r.pages} pages.`;
+    }
+    else { st.className = 'status err'; st.textContent = r.error; }
+  } catch (err) { st.className = 'status err'; st.textContent = 'Build failed: ' + err; }
+  btn.disabled = false;
+};
+$('folderBtn').onclick = () => fetch('/api/open-folder', {method:'POST', body: JSON.stringify({slug: current})});
+loadClients();
+</script>
+</body>
+</html>

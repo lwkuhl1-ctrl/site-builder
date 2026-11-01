@@ -1,0 +1,8 @@
+# Client data and builds live on the Render disk (or locally); never commit them or keys.
+clients/
+sites/
+.stock-cache/
+.env
+__pycache__/
+*.pyc
+.claude/
